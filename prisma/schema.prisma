@@ -10,6 +10,21 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum EventStatus {
+    SHOW
+    NOSHOW
+    Canceled
+    LateCanceled
+    ClinicianCanceled
+}
+
 model Event {
-    id String @id @default(cuid())
+    id         String      @id @default(cuid())
+    // TODO: repalce this with Client Model in future
+    clientName String
+    status     EventStatus @default(SHOW)
+    location   String      @default("Unassigned")
+    dateTime   DateTime    @default(now())
+    service    String
+    serviceFee Int         @default(100)
 }
