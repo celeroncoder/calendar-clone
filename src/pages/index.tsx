@@ -1,8 +1,6 @@
 import { type NextPage } from "next";
 import { Calendar } from "~/components";
 
-import { api } from "~/utils/api";
-
 const Home: NextPage = () => {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center gap-5 bg-slate-50">
