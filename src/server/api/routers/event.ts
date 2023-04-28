@@ -1,4 +1,5 @@
 import { EventStatus, Event } from "@prisma/client";
+import { start } from "repl";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -8,6 +9,19 @@ export const eventRouter = createTRPCRouter({
     // TODO: add a filter to get the events within a date range only!
     return await ctx.prisma.event.findMany();
   }),
+
+  getAllWeek: publicProcedure
+    .input(z.object({ start: z.string(), end: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.event.findMany({
+        where: {
+          dateTime: {
+            gte: new Date(input.start),
+            lte: new Date(input.end),
+          },
+        },
+      });
+    }),
 
   get: publicProcedure
     .input(z.object({ id: z.string().cuid() }))
