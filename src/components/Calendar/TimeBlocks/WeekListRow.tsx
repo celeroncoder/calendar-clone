@@ -7,7 +7,7 @@ export const WeekListRow: React.FC<{ weekDates: string[] }> = ({
     <div className="flex h-20 flex-[calc(1/19)]">
       {new Array(Days.length).fill(0).map((_, idx) => (
         <div
-          key={_}
+          key={idx}
           className="flex w-44 flex-[calc(1/7)] flex-col items-center justify-center gap-1 border-b border-r border-slate-300"
         >
           {new Date().getDate().toString() ===

@@ -17,7 +17,7 @@ export const TimeBlockRow: React.FC<{ current: Date; idxHr: number }> = ({
   return (
     <div className="flex h-20 flex-[calc(1/19)]">
       {new Array(7).fill(0).map((_, idxDay) => (
-        <Block idxDay={idxDay} current={current} idxHr={idxHr} />
+        <Block key={idxDay} idxDay={idxDay} current={current} idxHr={idxHr} />
       ))}
     </div>
   );

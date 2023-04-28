@@ -1,4 +1,3 @@
-import { Days } from "..";
 import { TimeBlockRow } from "./TimeBlockRow";
 import { WeekListRow } from "./WeekListRow";
 
@@ -12,8 +11,8 @@ export const TimeBlocks: React.FC<{ weekDates: string[]; current: Date }> = ({
       <WeekListRow weekDates={weekDates} />
 
       {/* dates rows */}
-      {new Array(18).fill(0).map((val, idxHr) => (
-        <TimeBlockRow key={val} idxHr={idxHr} current={current} />
+      {new Array(18).fill(0).map((_, idxHr) => (
+        <TimeBlockRow key={idxHr} idxHr={idxHr} current={current} />
       ))}
     </div>
   );

@@ -5,7 +5,10 @@ export const TimeColumn = () => {
         All Day
       </div>
       {new Array(18).fill(0).map((val, idx) => (
-        <div className="flex flex-[calc(1/19)] items-center justify-center border-b border-r border-slate-300 text-lg">
+        <div
+          key={idx}
+          className="flex flex-[calc(1/19)] items-center justify-center border-b border-r border-slate-300 text-lg"
+        >
           {idx + 6}:00 - {idx + 7}:00
         </div>
       ))}
