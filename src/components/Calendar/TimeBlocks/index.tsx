@@ -12,7 +12,12 @@ export const TimeBlocks: React.FC<{ weekDates: string[]; current: Date }> = ({
 
       {/* dates rows */}
       {new Array(18).fill(0).map((_, idxHr) => (
-        <TimeBlockRow key={idxHr} idxHr={idxHr} current={current} />
+        <TimeBlockRow
+          weekDates={weekDates}
+          key={idxHr}
+          idxHr={idxHr}
+          current={current}
+        />
       ))}
     </div>
   );

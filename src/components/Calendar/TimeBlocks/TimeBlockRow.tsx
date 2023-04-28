@@ -2,10 +2,11 @@ import { api } from "~/utils/api";
 import { Block } from "./Block";
 import { useEffect } from "react";
 
-export const TimeBlockRow: React.FC<{ current: Date; idxHr: number }> = ({
-  idxHr,
-  current,
-}) => {
+export const TimeBlockRow: React.FC<{
+  current: Date;
+  idxHr: number;
+  weekDates: string[];
+}> = ({ idxHr, current, weekDates }) => {
   const { data: events, isLoading } = api.event.getAll.useQuery();
 
   useEffect(() => {
@@ -17,7 +18,13 @@ export const TimeBlockRow: React.FC<{ current: Date; idxHr: number }> = ({
   return (
     <div className="flex h-20 flex-[calc(1/19)]">
       {new Array(7).fill(0).map((_, idxDay) => (
-        <Block key={idxDay} idxDay={idxDay} current={current} idxHr={idxHr} />
+        <Block
+          weekDates={weekDates}
+          key={idxDay}
+          idxDay={idxDay}
+          current={current}
+          idxHr={idxHr}
+        />
       ))}
     </div>
   );
