@@ -1,9 +1,7 @@
-// This is the popover Content
-
+import { Event } from "@prisma/client";
+import { Trash } from "lucide-react";
 import { useState } from "react";
 import { CalendarDatePickerWithPresets } from "~/components/ui/DatePicker";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -12,48 +10,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useToast } from "~/components/ui/use-toast";
+import { generateTimeSlots } from "./NewAppointment";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
+import { useToast } from "~/components/ui/use-toast";
 
-const generateTimeSlots = () => {
-  let timeSlots = new Array<string>(18).fill("");
-
-  timeSlots.forEach((_, idx) => {
-    timeSlots[idx] = `${idx + 6}:00 - ${idx + 7}:00`;
-  });
-
-  return timeSlots;
-};
-
-export const NewAppointment: React.FC<{
-  current: Date;
-  weekDates: string[];
-  idxDay: number;
-  idxHr: number;
+export const AppointmentDetails: React.FC<{
+  event: Event;
   close: () => void;
-}> = ({ current, weekDates, idxDay, idxHr, close }) => {
-  const [name, setName] = useState("");
-  const [date, setDate] = useState<Date | undefined>(() => {
-    current.setDate(
-      parseInt(weekDates[idxDay]!.slice(weekDates[idxDay]!.length - 2))
-    );
-    return current;
-  });
+}> = ({ event, close }) => {
+  const [date, setDate] = useState<Date | undefined>(event.dateTime);
 
-  const [timeSlots] = useState<string[]>(generateTimeSlots());
-  const [timeSlot, setTimeSlot] = useState<string>(timeSlots[idxHr]!);
+  const [timeSlots] = useState(generateTimeSlots());
+  const defaultTimeSlot = timeSlots[event.dateTime.getHours() - 6];
+  const [timeSlot, setTimeSlot] = useState(defaultTimeSlot);
 
-  const [service, setService] = useState("");
-  const [serviceFee, setServiceFee] = useState(100);
-  const [location, setLocation] = useState<string | undefined>();
+  const [service, setService] = useState(event.service);
+  const [serviceFee, setServiceFee] = useState(event.serviceFee);
 
-  const { mutateAsync: createEvent } = api.event.create.useMutation();
+  const [location, setLocation] = useState<string | undefined>(event.location);
+
+  const { mutateAsync: updateEvent } = api.event.update.useMutation();
 
   const { toast: showNotification } = useToast();
 
-  const submit = async () => {
-    const result = await createEvent({
-      clientName: name,
+  const update = async () => {
+    const result = await updateEvent({
+      id: event.id,
       service: service,
       dateTime: date,
       location: location,
@@ -67,42 +51,39 @@ export const NewAppointment: React.FC<{
       });
     else {
       showNotification({
-        title: "Appointment Set!",
-        description: "The Appointment has been saved successfully!",
+        title: "Appointment Update!",
+        description: "The Appointment has been update successfully!",
       });
     }
     close();
   };
 
   return (
-    <div className="flex flex-col gap-2 px-2">
+    <div className="flex flex-col space-y-2 px-2">
       {/* title */}
-      <div className="space-y-2">
-        <h4 className="font-medium leading-none">New Appointment</h4>
-        <p className="text-sm text-muted-foreground">
-          Create a new Client Appointment
-        </p>
+      <div className="flex justify-between gap-2">
+        <div className="space-y-2">
+          <h4 className="font-medium leading-none">
+            {event.clientName}'s Appointment
+          </h4>
+          <p className="text-sm text-muted-foreground">Appointment Details</p>
+        </div>
+        <div className="flex max-h-fit items-center justify-center">
+          <div className="group cursor-pointer rounded p-1 duration-200 hover:bg-muted">
+            <Trash
+              className="text-muted-foreground group-hover:text-red-400"
+              size={14}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Client Name */}
-      <div className="space-y-1">
-        <Label htmlFor="clientname">Client Name</Label>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          type="text"
-          id="clientname"
-          placeholder="John Doe"
-        />
-      </div>
-
-      {/* DatePicker */}
+      {/* date */}
       <div className="space-y-1">
         <Label>Date</Label>
         <CalendarDatePickerWithPresets date={date!} setDate={setDate} />
       </div>
 
-      {/* Time Slot Picker */}
       <div className="space-y-1">
         <Label htmlFor="time">Time Slot</Label>
         <Select
@@ -124,8 +105,6 @@ export const NewAppointment: React.FC<{
             ))}
           </SelectContent>
         </Select>
-
-        <p className="text-sm text-muted-foreground">Pick a time slot.</p>
       </div>
 
       {/* Serivce */}
@@ -138,9 +117,6 @@ export const NewAppointment: React.FC<{
           id="service"
           placeholder="Pathology Consultancy"
         />
-        <p className="text-sm text-muted-foreground">
-          Specify the Service Name.
-        </p>
       </div>
 
       {/* Serivce Fee */}
@@ -165,9 +141,6 @@ export const NewAppointment: React.FC<{
           id="service"
           placeholder="Unassigned"
         />
-        <p className="text-sm text-muted-foreground">
-          Please Specify the Location.
-        </p>
       </div>
 
       {/* Buttons */}
@@ -176,10 +149,17 @@ export const NewAppointment: React.FC<{
           Cancel
         </Button>
         <Button
-          onClick={submit}
-          disabled={service.length == 0 || name.length == 0}
+          onClick={update}
+          disabled={
+            service.length == 0 ||
+            (service == event.service &&
+              location == event.location &&
+              timeSlot == defaultTimeSlot &&
+              serviceFee == event.serviceFee &&
+              date == event.dateTime)
+          }
         >
-          Submit
+          Update
         </Button>
       </div>
     </div>

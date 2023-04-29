@@ -6,6 +6,7 @@ import {
 import { NewAppointment } from "./NewAppointment";
 import { useEffect, useState } from "react";
 import { Event } from "@prisma/client";
+import { AppointmentDetails } from "./AppointmentDetails";
 
 export const Block: React.FC<{
   idxHr: number;
@@ -27,7 +28,7 @@ export const Block: React.FC<{
   return (
     <Popover open={open} onOpenChange={setOpen} defaultOpen={false}>
       <div className="relative flex w-44 flex-[calc(1/7)] flex-col border-b border-r border-slate-300">
-        <PopoverTrigger className="h-full w-full cursor-default" />
+        <PopoverTrigger className="z-10 h-full w-full cursor-default" />
         {new Array(60).fill(0).map((_, idxMin) => (
           <div key={idxMin} className="flex-[calc(1/60)]">
             {idxMin + 1 === current.getMinutes() &&
@@ -42,7 +43,10 @@ export const Block: React.FC<{
 
         {/* event block */}
         {event && (
-          <div className="items-right flex h-full w-full cursor-pointer flex-col justify-center rounded-sm bg-emerald-400 pl-1 text-xs">
+          <div
+            className="items-right flex h-full w-full cursor-pointer flex-col justify-center rounded-sm bg-emerald-400 pl-1 text-xs"
+            onClick={() => setOpen(true)}
+          >
             <p className="font-bold text-slate-700">{event.clientName}</p>
             <p className="text-muted-foreground">
               {event.service.slice(0, 20)}
@@ -51,13 +55,17 @@ export const Block: React.FC<{
         )}
       </div>
       <PopoverContent className="min-w-fit">
-        <NewAppointment
-          idxDay={idxDay}
-          idxHr={idxHr}
-          weekDates={weekDates}
-          current={current}
-          close={() => setOpen(false)}
-        />
+        {event ? (
+          <AppointmentDetails event={event} close={() => setOpen(false)} />
+        ) : (
+          <NewAppointment
+            idxDay={idxDay}
+            idxHr={idxHr}
+            weekDates={weekDates}
+            current={current}
+            close={() => setOpen(false)}
+          />
+        )}
       </PopoverContent>
     </Popover>
   );
